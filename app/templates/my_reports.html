@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+{% for r in my_reports %}
+    <h4><a href="{{ url_for('report_details', report_id=r.id) }}">{{ r.report_name }}</a></h4>
+    {% for i in range(r.sites|length) %}
+        <h6>- {{ r.sites[i].site_name }} ({{ r.sites[i].gt_global_id }})</h6>
+        <br>
+    {% endfor %}
+    <br>
+{% endfor %}
+
+
+{% endblock content %}

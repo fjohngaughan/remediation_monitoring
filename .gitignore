@@ -1,0 +1,7 @@
+venv/
+migrations/
+data/
+.vscode/
+__pycache__/
+.env
+app.db

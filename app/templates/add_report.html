@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>Create a Report</h4>
+<br>
+
+<form action="" method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        <fieldset>
+        {{ form.report_name.label }}
+        {{ form.report_name(class="form-control") }}
+        </fieldset>
+        <br>
+        <fieldset>
+        {{ form.current_user_sites }} 
+        </fieldset>
+        <br>
+        {{ form.submit(class="btn btn-success") }}
+    </div>
+</form>
+
+{% endblock content %}

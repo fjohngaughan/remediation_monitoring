@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>Add a GeoTracker site that would you like to monitor</h4>
+<br>
+<p><strong>Important:</strong> You can name the site whatever you like (for simplicity, we recommend using the name GeoTracker assigned the site), 
+    but you <strong>must</strong> provide GeoTracker's Global ID for the site you wish to monitor.</p>
+<p>You can find site names and Global IDs on <a href="https://geotracker.waterboards.ca.gov/map/?CMD=runreport&myaddress=Sacramento">GeoTracker's database</a></p>
+<p><strong>Example of Site Name and Corresponding Global ID: </strong>Capitol Park Hotel (T10000016392)</p>
+<form action="" method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        <fieldset>
+        {{ form.site_name.label }}
+        {{ form.site_name(class="form-control") }}
+        </fieldset>
+        <br>
+        <fieldset>
+        {{ form.gt_global_id.label }}
+        {{ form.gt_global_id(class="form-control") }}
+        </fieldset>
+        <br>
+        {{ form.submit(class="btn btn-success") }}
+    </div>
+</form>
+
+{% endblock content %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+<h3>{{ report.report_name }}: {{ report_update.scraped_on }} Report</h3>
+
+{% for site in site_updates %}
+    {{ sites }}
+    <br>
+{% endfor %}
+
+
+{% endblock content %}

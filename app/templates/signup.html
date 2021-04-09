@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>Sign Up</h4>
+<br>
+<form action="" method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        <fieldset>
+        {{ form.first_name.label }}
+        {{ form.first_name(class="form-control") }}
+        </fieldset>
+        <br>
+        <fieldset>
+        {{ form.last_name.label }}
+        {{ form.last_name(class="form-control") }}
+        </fieldset>
+        <br>
+        <fieldset>
+        {{ form.email.label }}
+        {{ form.email(class="form-control") }}
+        </fieldset>
+        <br>
+        <fieldset>
+        {{ form.password.label }}
+        {{ form.password(class="form-control") }}
+        </fieldset>
+        <br>
+        <fieldset>
+        {{ form.confirm_password.label }}
+        {{ form.confirm_password(class="form-control") }}
+        </fieldset>
+        <br>
+        {{ form.submit(class="btn btn-success") }}
+    </div>
+</form>
+
+{% endblock content %}
