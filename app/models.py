@@ -18,8 +18,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     created_on = db.Column(db.Date, nullable=False, default=date.today())
-    sites = db.relationship("Site", backref="user", lazy=True)
-    reports = db.relationship("Report", backref="user", lazy=True)
+    sites = db.relationship("Site", cascade="all,delete", backref="user", lazy=True)
+    reports = db.relationship("Report", cascade="all,delete", backref="user", lazy=True)
 
     def __init__(self, first_name, last_name, email, password):
         self.first_name = first_name
@@ -41,7 +41,7 @@ class Site(db.Model):
     site_name = db.Column(db.String(200), nullable=False)
     gt_global_id = db.Column(db.String(50), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    site_updates = db.relationship("SiteUpdate", backref="site", lazy=True)
+    site_updates = db.relationship("SiteUpdate", cascade="all,delete", backref="site", lazy=True)
 
     def __repr__(self):
         return f"Site: {self.site_name}"
@@ -53,7 +53,7 @@ class Report(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     sites = db.relationship('Site', secondary=report_sites, lazy='subquery', backref=db.backref('reports', lazy=True))
-    report_updates = db.relationship("ReportUpdate", backref="report", lazy=True)
+    report_updates = db.relationship("ReportUpdate", cascade="all,delete", backref="report", lazy=True)
 
     def __repr__(self):
         return f"Report: {self.report_name}"
@@ -63,7 +63,7 @@ class ReportUpdate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     report_id = db.Column(db.Integer, db.ForeignKey('report.id'))
     scraped_on = db.Column(db.Date, nullable=False, default=date.today())
-    site_updates = db.relationship("SiteUpdate", backref="report_update", lazy=True)
+    site_updates = db.relationship("SiteUpdate", cascade="all,delete", backref="report_update", lazy=True)
 
     def __repr__(self):
         return f"Report Name/Update ID: {Report.query.filter_by(id=self.report_id).first().name}/{self.id}"
@@ -74,7 +74,7 @@ class SiteUpdate(db.Model):
     report_update_id = db.Column(db.Integer, db.ForeignKey('report_update.id'))
     site_id = db.Column(db.Integer, db.ForeignKey('site.id'))
     site_status = db.Column(db.String(250))
-    new_actions = db.relationship("NewAction", backref="site_update", lazy=True)
+    new_actions = db.relationship("NewAction", cascade="all,delete", backref="site_update", lazy=True)
 
     def __repr__(self):
         return f"Site Name/Report Update ID: {Site.query.filter_by(id=self.site_id).first().name}/{self.report_update_id}"
@@ -88,7 +88,7 @@ class NewAction(db.Model):
     action_date = db.Column(db.String(20))
     received_date = db.Column(db.String(20))
     description = db.Column(db.String(2000))
-    new_docs = db.relationship("NewDoc", backref="new_action", lazy=True)
+    new_docs = db.relationship("NewDoc", cascade="all,delete", backref="new_action", lazy=True)
 
     def __repr__(self):
         return f"New Action ID/Site Update ID: {self.id}/{SiteUpdate.query.filter_by(id=self.site_update_id).first().id}"

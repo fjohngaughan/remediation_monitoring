@@ -4,6 +4,7 @@ from app.forms import UserInfoForm, LoginForm, AddSiteForm, AddReportForm
 from app.models import User, Report, Site, ReportUpdate, SiteUpdate, NewAction, NewDoc
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
+from app.scrape import InitialSiteScan, ReportUpdateScan
 
 @app.route('/')
 def index():
@@ -80,9 +81,22 @@ def addreport():
         current_user.reports.append(new_report)
         db.session.add(new_report)
         db.session.commit()
+        sites_list = [[site.id, site.gt_global_id] for site in new_report.sites]
+        initial_site_scan = InitialSiteScan(sites_list, new_report.id)
+        initial_site_scan.start()
         flash(f"{report_name} has been added to your sites!")
         return redirect(url_for("addreport"))
     return render_template("add_report.html", title=title, report=report, form=form)
+
+
+@app.route('/mysites')
+@login_required
+def mysites():
+    context = {
+        'title': 'SITE NAME | My Sites',
+        'my_sites': Site.query.filter_by(user_id=current_user.id).all()
+    }
+    return render_template('my_sites.html', **context)
 
 
 @app.route('/myreports')
@@ -90,16 +104,24 @@ def addreport():
 def myreports():
     context = {
         'title': 'SITE NAME | My Reports',
-        'my_reports': Report.query.filter_by(id=current_user.id).all()
+        'my_reports': Report.query.filter_by(user_id=current_user.id).all(),
+        'ReportUpdateScan': ReportUpdateScan
     }
     return render_template('my_reports.html', **context)
+
+    # {% set sites_list = [] %}
+    # {% for site in r.sites %}
+    #     {% for  %}
+    #     {% do sites_list.append([{{site.id}}, {{site.gt_global_id}}]) %}
+    # {% endfor %}
+    # {% sites_list = [[site.id, site.gt_global_id] for site in r.sites] %} 
 
 @app.route('/myreports/<int:report_id>')
 @login_required
 def report_details(report_id):
     report = Report.query.get_or_404(report_id)
     report_updates = report.report_updates
-    sites_list = [report.sites[i].gt_global_id for i in len(range(report.sites))]
+    sites_list = [report.sites[i].gt_global_id for i in range(len(report.sites))]
     context = {
         'title': f'SITE NAME | {report.report_name}'
     }
@@ -111,14 +133,15 @@ def report_update(report_id, report_update_id):
     report = Report.query.get_or_404(report_id)
     report_update = ReportUpdate.query.get_or_404(report_update_id)
     site_updates = report_update.site_updates
-    new_actions = site_updates.new_actions
-    new_docs = new_actions.new_docs
-    sites = Site()
+    site_update_ids = [site_update.id for site_update in site_updates]
+    new_actions = NewAction.query.filter(NewAction.site_update_id.in_(site_update_ids)).all()
+    new_action_ids = [new_action.id for new_action in new_actions]
+    new_docs = NewDoc.query.filter(NewDoc.new_action_id.in_(new_action_ids)).all()
     context = {
         'title': f'SITE NAME | {report.report_name} - {report_update.scraped_on} Report',
         'report': report,
         'report_update': report_update,
-        'sites': sites,
+        'Site': Site(),
         'site_updates': site_updates,
         'new_actions': new_actions,
         'new_docs': new_docs

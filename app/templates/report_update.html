@@ -3,9 +3,18 @@
 {% block content %}
 <br>
 <h3>{{ report.report_name }}: {{ report_update.scraped_on }} Report</h3>
-
+<br>
 {% for site in site_updates %}
-    {{ sites }}
+    <h5>{{ Site.query.filter_by(id=site.site_id).first().site_name }} ({{ Site.query.filter_by(id=site.site_id).first().gt_global_id }})</h5>
+    {% for new_action in new_actions %}
+        {% if new_action.id == site.id %}
+            {{ new_action.action_type }} | {{ new_action.action }} | {{ new_action.action_date }} | {{ new_action.received_date }} | {{ new_action.description }}
+            {% for new_doc in new_action.new_docs %}
+                <a href="{{ new_doc.doc_link }}">{{new_doc.doc_name}}</a>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    <p></p>
     <br>
 {% endfor %}
 

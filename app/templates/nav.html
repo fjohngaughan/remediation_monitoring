@@ -2,7 +2,7 @@
  
  <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('index') }}">App Name/Logo</a>
+      <a class="navbar-brand" href="{{ url_for('index') }}">GT Reports</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -16,7 +16,7 @@
           </li>
           {% if current_user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="#">My Sites</a>
+            <a class="nav-link" href="{{ url_for('mysites') }}">My Sites</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('myreports') }}">My Reports</a>

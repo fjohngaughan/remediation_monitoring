@@ -30,130 +30,186 @@ options.headless = True
 options.add_argument("--window-size=1920,1200")
 
 gt_start_url = 'https://geotracker.waterboards.ca.gov/profile_report?global_id='
-driver = webdriver.Chrome(options=options, executable_path='chrome_driver/chromedriver')
-
+driver = webdriver.Chrome(options=options, executable_path='/Users/fjgaughan94/Desktop/data-science/coding-temple/final-project/ideas-&-testing/selenium-test/chrome_driver/chromedriver')
+database_uri = 'postgres://cglpswlj:PljB6Lqcs31c_WxbjZ8w77WNxJVty0zU@queenie.db.elephantsql.com:5432/cglpswlj'
 engine = create_engine(database_uri)
 
-class InitialSiteScan(sites_list):
+class InitialSiteScan():
 
-    def __init__(self, current_user, report_id, )
+    def __init__(self, sites_list, report_id):
+        self.sites_list = sites_list
+        self.report_id = report_id
 
+    def start(self):
+        new_report_update = ReportUpdate(report_id=self.report_id)
+        db.session.add(new_report_update)
+        db.session.commit()
+        self.scrape_site_update(new_report_update)
+        
+    def scrape_site_update(self, report_update):
+        for site in self.sites_list:
+            # Navigating to the cleanup site page
+            driver.get(gt_start_url + site[1])
+            # Grabbing the site's status
+            site_status = driver.find_element_by_xpath('//*[@id="main-content"]/div/main/div/div[2]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/table/tbody/tr[5]/td/font').text
+            new_site_update = SiteUpdate(report_update_id=report_update.id, site_id=site[0], site_status=site_status)
+            db.session.add(new_site_update)
+            db.session.commit()
+            self.scrape_new_actions(new_site_update.id)
+        return
 
+    def scrape_new_actions(self, site_update_id):
+        for site in self.sites_list:
+            # Navigating to the cleanup site page
+            driver.get(gt_start_url + site[1])
+            # Navigate to the Regulatory Activiaties Tag
+            if driver.find_element_by_link_text("Regulatory Activities") is False:
+                # TODO: ADD A MESSAGE THAT CAN BE DISPLAYED IN THE REPORT UPDATE - "THIS SITE DOES NOT HAVE ANY REGULATORY ACTIVITIES"
+                return 
+            else:
+                driver.find_element_by_link_text("Regulatory Activities").click()
+                # Wait for the page to load
+                xpath = "//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[4]"
+                try:
+                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
+                except TimeoutException:
+                    print("Required element still could not be found!")
+                # loop through Regulatory Activity rows until it hits a row in the "New Actions" table
+                action_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[4]").text
+                description = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[6]").text
+                action_type = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[2]").text
+                action = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[3]").text
+                received_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[5]").text
+                new_action_row = NewAction(site_update_id=site_update_id, action_type=action_type, action=action, 
+                                            action_date=action_date, received_date=received_date, description=description)
+                db.session.add(new_action_row)
+                db.session.commit()
+        return
 
 class ReportUpdateScan():
 
-def scrape_site_update(sites_list):
-    global site_update
-    site_update = pd.read_sql_table('Site Update', database_uri, index_col='index')
-    for site in sites_list:
-        # Navigating to the cleanup site page
-        driver.get(gt_start_url + site)
-        # Grabbing the site's status
-        site_status = driver.find_element_by_xpath('//*[@id="main-content"]/div/main/div/div[2]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/table/tbody/tr[5]/td/font').text
-        site_update_row = [site_status, today]
-        a_series = pd.Series(site_update_row, index=site_update.columns)
-        site_update = site_update.append(a_series, ignore_index=True)
-    site_update.to_sql('Site Update', engine, if_exists='append')
-    return
+    def __init__(self, sites_list, report_id):
+        self.sites_list = sites_list
+        self.report_id = report_id
 
-# scrape_site_update(geo_sites)
+    def start(self):
+        new_report_update = ReportUpdate(report_id=self.report_id)
+        db.session.add(new_report_update)
+        db.session.commit()
+        self.scrape_site_update(new_report_update)
 
+    def scrape_site_update(sites_list, site_update_id):
+        global site_update
+        site_update = pd.read_sql_table('Site Update', database_uri, index_col='index')
+        for site in sites_list:
+            # Navigating to the cleanup site page
+            driver.get(gt_start_url + site)
+            # Grabbing the site's status
+            site_status = driver.find_element_by_xpath('//*[@id="main-content"]/div/main/div/div[2]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/table/tbody/tr[5]/td/font').text
+            site_update_row = [site_status, today]
+            a_series = pd.Series(site_update_row, index=site_update.columns)
+            site_update = site_update.append(a_series, ignore_index=True)
+        site_update.to_sql('Site Update', engine, if_exists='append')
+        return
 
-def scrape_new_actions(sites_list):
-    global new_actions
-    new_actions = pd.read_sql_table('New Actions', database_uri, index_col='index')
-    # global new_actions_additions
-    for site in sites_list:
-        # Navigating to the cleanup site page
-        driver.get(gt_start_url + site)
-        # Navigate to the Regulatory Activiaties Tag
-        driver.find_element_by_link_text("Regulatory Activities").click()
-        # Wait for the page to load
-        xpath = "//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[4]"
-        try:
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
-        except TimeoutException:
-            print("Required element still could not be found!")
-        # loop through Regulatory Activity rows until it hits a row in the "New Actions" table
-        for i in range(2,10):
-            # Check if action date and description in the row are in the "New Actions" table
-            action_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[4]").text
-            descript = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[6]").text
-            if i==2 and action_date in new_actions['action_date'].tolist() and descript in new_actions['description'].tolist():
-                no_new_actions = ["No new actions", np.nan, np.nan, np.nan, np.nan, today]
-                a_series = pd.Series(no_new_actions, index=new_actions.columns)
-                new_actions = new_actions.append(a_series, ignore_index=True)
-                continue
-            elif action_date in new_actions['action_date'].tolist() and descript in new_actions['description'].tolist():
-                break
-            action_type = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[2]").text
-            action = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[3]").text
-            received_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[5]").text
-            new_action_row = [action_type, action, action_date, received_date, descript, today]
-            a_series = pd.Series(new_action_row, index=new_actions.columns)
-            new_actions = new_actions.append(a_series, ignore_index=True)
-    new_actions = new_actions.reset_index(drop=True)
-    new_actions.to_sql('New Actions', engine, if_exists='replace')
-    return
-
-# scrape_new_actions(geo_sites)
+    # scrape_site_update(geo_sites)
 
 
-def scrape_new_docs(sites_list):
-    global new_actions_today
-    # WHEN YOU QUERY THE "NEW ACTIONS" TABLE TO DETERMINE WHAT TO SCRAPE, YOU'LL NEED...
-        # THE NEWLY GENERATED NEW_ACTION_IDS ASSOCIATED WITH THE SITE_UPDATE_IDS ASSOCIATED WITH THE CURRENT REPORT_UPDATE_ID
-        # GLOBAL IDS OF SITES THAT HAVE NEWLY GENERATED NEW_ACTION_IDS
-    new_actions_today = pd.read_sql_query(sql=f'''SELECT * FROM "public"."New Actions" WHERE "scraped_on"='{today}' ''', con=database_uri, index_col='index')
-    global new_docs
-    new_docs = pd.read_sql_table('New Docs', database_uri, index_col='index') 
-    for site in sites_list:
-        # Navigating to the cleanup site page
-        driver.get(gt_start_url + site)
-        # Navigate to the Regulatory Activiaties Tag
-        driver.find_element_by_link_text("Regulatory Activities").click()
-        for i in range(2, 11): 
+    def scrape_new_actions(sites_list):
+        global new_actions
+        new_actions = pd.read_sql_table('New Actions', database_uri, index_col='index')
+        # global new_actions_additions
+        for site in sites_list:
+            # Navigating to the cleanup site page
+            driver.get(gt_start_url + site)
+            # Navigate to the Regulatory Activiaties Tag
+            driver.find_element_by_link_text("Regulatory Activities").click()
             # Wait for the page to load
             xpath = "//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[4]"
             try:
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
             except TimeoutException:
                 print("Required element still could not be found!")
-            # Check if action date and description in the row are in the "New Actions" table
-            action_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[4]").text
-            descript = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[6]").text
-            if action_date not in new_actions_today['action_date'].tolist() or descript not in new_actions_today['description'].tolist():
-                break
-            elif action_date in new_actions_today['action_date'].tolist() and descript in new_actions_today['description'].tolist():
-                if driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[1]").text != "[VIEW DOCS]":
+            # loop through Regulatory Activity rows until it hits a row in the "New Actions" table
+            for i in range(2,10):
+                # Check if action date and description in the row are in the "New Actions" table
+                action_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[4]").text
+                descript = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[6]").text
+                if i==2 and action_date in new_actions['action_date'].tolist() and descript in new_actions['description'].tolist():
+                    no_new_actions = ["No new actions", np.nan, np.nan, np.nan, np.nan, today]
+                    a_series = pd.Series(no_new_actions, index=new_actions.columns)
+                    new_actions = new_actions.append(a_series, ignore_index=True)
                     continue
-                else: 
-                    # Click on "[VIEW DOCS]" for the top doc
-                    driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[1]/a").click()
-                    # Switch the driver's window handle to the new web page (the [VIEW DOCS] page that has the pdf links)
-                    site_page = driver.window_handles[0]
-                    view_docs_page = driver.window_handles[1]
-                    driver.switch_to.window(view_docs_page)
-                    # Wait for the page to load
-                    try:
-                        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//a[@href]")))
-                    except TimeoutException:
-                        print("Required element still could not be found!")
-                    # Get the top pdf link
-                    pdf_links = driver.find_elements_by_xpath("//a[@href]")
-                    for i in pdf_links:
-                        link = i.get_attribute('href')
-                        name = i.text
-                        # CHECK IF THE LINK IS ALREADY IN THE DATAFRAME
-                            # IF IT IS: GENERATE A SINGLE ROW THAT SAYS "NO NEW DOCUMENTS" + SCRAPED_ON DATE AND APPEND IT TO THE NEW DOCS TABLE
-                        # OTHERWISE...
-                        new_docs_row = [name, link, today]
-                        a_series = pd.Series(new_docs_row, index=new_docs.columns)
-                        new_docs = new_docs.append(a_series, ignore_index=True)
-                    driver.switch_to.window(site_page)  
-    new_docs.to_sql('New Docs', engine, if_exists='replace')     
-    return  
+                elif action_date in new_actions['action_date'].tolist() and descript in new_actions['description'].tolist():
+                    break
+                action_type = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[2]").text
+                action = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[3]").text
+                received_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[5]").text
+                new_action_row = [action_type, action, action_date, received_date, descript, today]
+                a_series = pd.Series(new_action_row, index=new_actions.columns)
+                new_actions = new_actions.append(a_series, ignore_index=True)
+        new_actions = new_actions.reset_index(drop=True)
+        new_actions.to_sql('New Actions', engine, if_exists='replace')
+        return
 
-# scrape_new_docs(geo_sites)
+    # scrape_new_actions(geo_sites)
+
+
+    def scrape_new_docs(sites_list):
+        global new_actions_today
+        # WHEN YOU QUERY THE "NEW ACTIONS" TABLE TO DETERMINE WHAT TO SCRAPE, YOU'LL NEED...
+            # THE NEWLY GENERATED NEW_ACTION_IDS ASSOCIATED WITH THE SITE_UPDATE_IDS ASSOCIATED WITH THE CURRENT REPORT_UPDATE_ID
+            # GLOBAL IDS OF SITES THAT HAVE NEWLY GENERATED NEW_ACTION_IDS
+        new_actions_today = pd.read_sql_query(sql=f'''SELECT * FROM "public"."New Actions" WHERE "scraped_on"='{today}' ''', con=database_uri, index_col='index')
+        global new_docs
+        new_docs = pd.read_sql_table('New Docs', database_uri, index_col='index') 
+        for site in sites_list:
+            # Navigating to the cleanup site page
+            driver.get(gt_start_url + site)
+            # Navigate to the Regulatory Activiaties Tag
+            driver.find_element_by_link_text("Regulatory Activities").click()
+            for i in range(2, 11): 
+                # Wait for the page to load
+                xpath = "//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[4]"
+                try:
+                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
+                except TimeoutException:
+                    print("Required element still could not be found!")
+                # Check if action date and description in the row are in the "New Actions" table
+                action_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[4]").text
+                descript = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[6]").text
+                if action_date not in new_actions_today['action_date'].tolist() or descript not in new_actions_today['description'].tolist():
+                    break
+                elif action_date in new_actions_today['action_date'].tolist() and descript in new_actions_today['description'].tolist():
+                    if driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[1]").text != "[VIEW DOCS]":
+                        continue
+                    else: 
+                        # Click on "[VIEW DOCS]" for the top doc
+                        driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[1]/a").click()
+                        # Switch the driver's window handle to the new web page (the [VIEW DOCS] page that has the pdf links)
+                        site_page = driver.window_handles[0]
+                        view_docs_page = driver.window_handles[1]
+                        driver.switch_to.window(view_docs_page)
+                        # Wait for the page to load
+                        try:
+                            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//a[@href]")))
+                        except TimeoutException:
+                            print("Required element still could not be found!")
+                        # Get the top pdf link
+                        pdf_links = driver.find_elements_by_xpath("//a[@href]")
+                        for i in pdf_links:
+                            link = i.get_attribute('href')
+                            name = i.text
+                            # CHECK IF THE LINK IS ALREADY IN THE DATAFRAME
+                                # IF IT IS: GENERATE A SINGLE ROW THAT SAYS "NO NEW DOCUMENTS" + SCRAPED_ON DATE AND APPEND IT TO THE NEW DOCS TABLE
+                            # OTHERWISE...
+                            new_docs_row = [name, link, today]
+                            a_series = pd.Series(new_docs_row, index=new_docs.columns)
+                            new_docs = new_docs.append(a_series, ignore_index=True)
+                        driver.switch_to.window(site_page)  
+        new_docs.to_sql('New Docs', engine, if_exists='replace')     
+        return  
+
+    # scrape_new_docs(geo_sites)
 
 

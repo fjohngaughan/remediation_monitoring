@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+{% for s in my_sites %}
+    <h4>{{ s.site_name }} ({{ s.gt_global_id }})</h4>
+{% endfor %}
+<br>
+<h5><a href="{{ url_for('addsite') }}">Add a new site</a></h5>
+
+
+{% endblock content %}
