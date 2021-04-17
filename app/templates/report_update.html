@@ -6,13 +6,12 @@
 <br>
 {% for site in site_updates %}
     <h5>{{ Site.query.filter_by(id=site.site_id).first().site_name }} ({{ Site.query.filter_by(id=site.site_id).first().gt_global_id }})</h5>
-    {% for new_action in new_actions %}
-        {% if new_action.id == site.id %}
-            {{ new_action.action_type }} | {{ new_action.action }} | {{ new_action.action_date }} | {{ new_action.received_date }} | {{ new_action.description }}
-            {% for new_doc in new_action.new_docs %}
-                <a href="{{ new_doc.doc_link }}">{{new_doc.doc_name}}</a>
-            {% endfor %}
-        {% endif %}
+    {% for new_action in site.new_actions %}
+        {{ new_action.action_type }} | {{ new_action.action }} | {{ new_action.action_date }} | {{ new_action.received_date }} | {{ new_action.description }}
+        <br>
+        {% for new_doc in new_action.new_docs %}
+            <a href="{{ new_doc.doc_link }}">{{new_doc.doc_name}}</a>
+        {% endfor %}
     {% endfor %}
     <p></p>
     <br>

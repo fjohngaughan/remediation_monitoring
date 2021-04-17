@@ -68,6 +68,8 @@ class ReportUpdate(db.Model):
     def __repr__(self):
         return f"Report Name/Update ID: {Report.query.filter_by(id=self.report_id).first().name}/{self.id}"
 
+# you just need the most recent Site Update's new actions. 
+
 class SiteUpdate(db.Model):
     __tablename__ = "site_update"
     id = db.Column(db.Integer, primary_key=True)

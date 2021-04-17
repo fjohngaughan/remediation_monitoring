@@ -4,8 +4,8 @@
 <br>
 <h3>{{ report.report_name }}</h3>
 
-{% for ru in report_updates %}
-    <h4><a href="{{ url_for('report_update', report_id=report.id, report_update_id=ru.id) }}">{{ ru.scraped_on}} Report</a></h4>
+{% for i in range(1, report_updates|length) %} 
+    <h4><a href="{{ url_for('report_update', report_id=report.id, report_update_id=report_updates[i].id) }}">{{ report_updates[i].scraped_on}} Report</a></h4>
     <br>
 {% endfor %}
 

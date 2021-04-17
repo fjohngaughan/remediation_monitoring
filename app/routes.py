@@ -99,22 +99,25 @@ def mysites():
     return render_template('my_sites.html', **context)
 
 
-@app.route('/myreports')
+@app.route('/myreports', methods=["GET", "POST"])
 @login_required
 def myreports():
+    my_reports = Report.query.filter_by(user_id=current_user.id).all()
     context = {
         'title': 'SITE NAME | My Reports',
-        'my_reports': Report.query.filter_by(user_id=current_user.id).all(),
+        'my_reports': my_reports,
         'ReportUpdateScan': ReportUpdateScan
     }
+    if request.method == "POST":
+        for i in range(len(my_reports)):
+            if request.form.get(f"report_id{my_reports[i].id}"):
+                new_scan = ReportUpdateScan(my_reports[i].id)
+                new_scan.start()
+                flash(f"We've prepared an update for {my_reports[i].report_name}!")
+                return redirect(url_for("myreports"))
     return render_template('my_reports.html', **context)
 
-    # {% set sites_list = [] %}
-    # {% for site in r.sites %}
-    #     {% for  %}
-    #     {% do sites_list.append([{{site.id}}, {{site.gt_global_id}}]) %}
-    # {% endfor %}
-    # {% sites_list = [[site.id, site.gt_global_id] for site in r.sites] %} 
+
 
 @app.route('/myreports/<int:report_id>')
 @login_required
@@ -127,24 +130,29 @@ def report_details(report_id):
     }
     return render_template('report_details.html', report=report, report_updates=report_updates)
 
+    # {% set sites_list = [] %}
+    # {% for site in r.sites %}
+    #     {% for  %}
+    #     {% do sites_list.append([{{site.id}}, {{site.gt_global_id}}]) %}
+    # {% endfor %}
+    # {% sites_list = [[site.id, site.gt_global_id] for site in r.sites] %} 
+
 @app.route('/myreports/<int:report_id>/<int:report_update_id>')
 @login_required
 def report_update(report_id, report_update_id):
+    # THIS ONLY GIVES YOU INFO ON THE SITES THAT HAD NEW ACTIONS IN THE UPDATE. YOU NEED TO CREATE A CONDITIONAL IN 
+    # report_update.html FOR SITES WITH NO UPDATES IN THE REPORT UPDATE
     report = Report.query.get_or_404(report_id)
     report_update = ReportUpdate.query.get_or_404(report_update_id)
     site_updates = report_update.site_updates
     site_update_ids = [site_update.id for site_update in site_updates]
-    new_actions = NewAction.query.filter(NewAction.site_update_id.in_(site_update_ids)).all()
-    new_action_ids = [new_action.id for new_action in new_actions]
-    new_docs = NewDoc.query.filter(NewDoc.new_action_id.in_(new_action_ids)).all()
+    sites_list = [[site.site_id, Site.query.filter_by(id=site.site_id).first().gt_global_id] for site in site_updates]
     context = {
         'title': f'SITE NAME | {report.report_name} - {report_update.scraped_on} Report',
         'report': report,
         'report_update': report_update,
         'Site': Site(),
-        'site_updates': site_updates,
-        'new_actions': new_actions,
-        'new_docs': new_docs
+        'site_updates': site_updates
     }
     return render_template('report_update.html', **context)
 
