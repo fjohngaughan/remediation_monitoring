@@ -1,38 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h4>Sign Up</h4>
 <br>
-<form action="" method="POST">
-    {{ form.hidden_tag() }}
-    <div class="form-group">
-        <fieldset>
-        {{ form.first_name.label }}
-        {{ form.first_name(class="form-control") }}
-        </fieldset>
-        <br>
-        <fieldset>
-        {{ form.last_name.label }}
-        {{ form.last_name(class="form-control") }}
-        </fieldset>
-        <br>
-        <fieldset>
-        {{ form.email.label }}
-        {{ form.email(class="form-control") }}
-        </fieldset>
-        <br>
-        <fieldset>
-        {{ form.password.label }}
-        {{ form.password(class="form-control") }}
-        </fieldset>
-        <br>
-        <fieldset>
-        {{ form.confirm_password.label }}
-        {{ form.confirm_password(class="form-control") }}
-        </fieldset>
-        <br>
-        {{ form.submit(class="btn btn-success") }}
+<br>
+<h3 style="text-align: center;">Sign Up</h3>
+<br>
+<div class="col-sm-6 mx-auto" style="width: 20rem; text-align: center;">
+    <div class="card" style="height:auto;">
+        <div class="card-body">
+            <form action="" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group" style="text-align:left;">
+                    <fieldset>
+                    {{ form.first_name.label }}
+                    {{ form.first_name(class="form-control") }}
+                    </fieldset>
+                    <br>
+                    <fieldset>
+                    {{ form.last_name.label }}
+                    {{ form.last_name(class="form-control") }}
+                    </fieldset>
+                    <br>
+                    <fieldset>
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control") }}
+                    </fieldset>
+                    <br>
+                    <fieldset>
+                    {{ form.password.label }}
+                    {{ form.password(class="form-control") }}
+                    </fieldset>
+                    <br>
+                    <fieldset>
+                    {{ form.confirm_password.label }}
+                    {{ form.confirm_password(class="form-control") }}
+                    </fieldset>
+                    <br>
+                    <div style="text-align:center;">{{ form.submit(class="btn btn-primary") }}</div>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
 
 {% endblock content %}

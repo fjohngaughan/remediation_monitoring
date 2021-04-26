@@ -44,21 +44,18 @@ class InitialSiteScan():
             driver.get(gt_start_url + site[1])
             # Grabbing the site's status
             site_status = driver.find_element_by_xpath('//*[@id="main-content"]/div/main/div/div[2]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/table/tbody/tr[5]/td/font').text
+            site_status = site_status.rstrip(" - DEFINITION")
             new_site_update = SiteUpdate(report_update_id=report_update.id, site_id=site[0], site_status=site_status)
             db.session.add(new_site_update)
             db.session.commit()
-            self.scrape_new_actions(new_site_update)
+            self.scrape_top_action(new_site_update)
         return
 
-    def scrape_new_actions(self, site_update):
-        site_gt_global_id = Site.query.filter_by(id=site_update.site_id).first().gt_global_id
+    def scrape_top_action(self, site_update):
         # Navigating to the cleanup site page
-        driver.get(gt_start_url + site_gt_global_id)
+        driver.get(gt_start_url + site_update.site.gt_global_id)
         # Navigate to the Regulatory Activiaties Tag
-        if driver.find_element_by_link_text("Regulatory Activities") is False:
-            # TODO: ADD A MESSAGE THAT CAN BE DISPLAYED IN THE REPORT UPDATE - "THIS SITE DOES NOT HAVE ANY REGULATORY ACTIVITIES"
-            return 
-        else:
+        try:
             driver.find_element_by_link_text("Regulatory Activities").click()
             # Wait for the page to load
             xpath = "//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[4]"
@@ -76,18 +73,22 @@ class InitialSiteScan():
                                         action_date=action_date, received_date=received_date, description=description)
             db.session.add(new_action_row)
             db.session.commit()
-        return
+            return
+        except:
+            return
+            # driver.find_element_by_xpath("//a[@class='tab-disabled']/span"):
+            # if driver.find_element_by_xpath("//a[@class='tab-disabled']/span").text == 'Regulatory Activities':  
+            #     return 
 
 class ReportUpdateScan():
 
     def __init__(self, report_id):
         report = Report.query.get_or_404(report_id)
-        last_report_update = ReportUpdate.query.filter_by(report_id=report.id).order_by(ReportUpdate.id.desc()).first()
-        site_ids_in_report = [site.id for site in report.sites]
+        last_report_update = report.report_updates[-1]
         # Get the last site update for each site - query all sites_updates matching the site_id, and grab the bottom one
-        last_site_updates = [SiteUpdate.query.filter_by(site_id=site_id).order_by(SiteUpdate.id.desc()).first() for site_id in site_ids_in_report]
+        last_site_updates = [site.site_updates[-1] for site in report.sites]
         # Create a list of lists with the site id, GeoTracker global id, and site update id for each site, drawn from last_site_updates
-        sites_list = [[site_update.site_id, Site.query.filter_by(id=site_update.site_id).first().gt_global_id, site_update.id] for site_update in last_site_updates]
+        sites_list = [[site_update.site_id, site_update.site.gt_global_id, site_update.id] for site_update in last_site_updates]
         self.last_site_updates_ids = [site_update.id for site_update in last_site_updates]
         self.sites_list = sites_list
         self.report_id = report_id
@@ -105,19 +106,28 @@ class ReportUpdateScan():
             # Navigating to the cleanup site page
             driver.get(gt_start_url + site[1])
             # Grabbing the site's status
+            prev_site_status = Site.query.filter_by(id=site[0]).first().site_updates[-1].site_status
             site_status = driver.find_element_by_xpath('//*[@id="main-content"]/div/main/div/div[2]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[1]/table/tbody/tr[5]/td/font').text
-            new_site_update = SiteUpdate(report_update_id=report_update.id, site_id=site[0], site_status=site_status)
-            db.session.add(new_site_update)
-            db.session.commit()
+            site_status = site_status.rstrip(" - DEFINITION")
+            if site_status != prev_site_status:
+                new_site_update = SiteUpdate(report_update_id=report_update.id, site_id=site[0], site_status=site_status, status_changed=True)
+                db.session.add(new_site_update)
+                db.session.commit()
+            else:
+                new_site_update = SiteUpdate(report_update_id=report_update.id, site_id=site[0], site_status=site_status)
+                db.session.add(new_site_update)
+                db.session.commit()
             self.scrape_new_actions(new_site_update)
         return
 
 
     def scrape_new_actions(self, site_update):
-        site_gt_global_id = Site.query.filter_by(id=site_update.site_id).first().gt_global_id
         # Navigating to the cleanup site page
-        driver.get(gt_start_url + site_gt_global_id)
-        # Navigate to the Regulatory Activiaties Tag
+        driver.get(gt_start_url + site_update.site.gt_global_id)
+        # Check if the Regulatory Activities tab is active
+        if driver.find_element_by_xpath("//a[@class='tab-disabled']/span").text == 'Regulatory Activities':
+            return 
+        # Navigate to the Regulatory Activities tab
         driver.find_element_by_link_text("Regulatory Activities").click()
         # Wait for the page to load
         xpath = "//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[4]"
@@ -126,6 +136,8 @@ class ReportUpdateScan():
         except TimeoutException:
             print("Required element still could not be found!")
         # loop through Regulatory Activity rows until it hits a row in the "New Actions" table
+        last_site_update_w_action = SiteUpdate.query.filter_by(site_id=site_update.site_id).filter(SiteUpdate.new_actions.any()).all()[-1]
+        last_site_action = last_site_update_w_action.new_actions[0]
         for i in range(2,10):
             # Check if action date and description in the row are in the "New Actions" table
             action_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[4]").text
@@ -134,31 +146,22 @@ class ReportUpdateScan():
             # The last site update will have the appropriate date to check against.
             # I need to make a list of the action dates from the last Site Update and see if action_date is in there
             # all_site_actions = NewAction.query.filter(NewAction.site_update_id.in_(site_update_ids)).all()
-            # I need to get the 
-            last_site_update = SiteUpdate.query.filter_by(site_id=site_update.site_id).filter(SiteUpdate.id.in_(self.last_site_updates_ids)).first()
-            last_site_action = NewAction.query.filter_by(site_update_id=last_site_update.id).first()
             if action_date == last_site_action.action_date and description == last_site_action.description:
                 break
-            action_type = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[2]").text
-            action = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[3]").text
-            received_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[5]").text
-            new_action_row = NewAction(site_update_id=site_update.id, action_type=action_type, action=action, action_date=action_date, received_date=received_date, description=description)
-            db.session.add(new_action_row)
-            db.session.commit()
+            else:
+                action_type = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[2]").text
+                action = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[3]").text
+                received_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[{i}]/td[5]").text
+                new_action_row = NewAction(site_update_id=site_update.id, action_type=action_type, action=action, action_date=action_date, received_date=received_date, description=description)
+                db.session.add(new_action_row)
+                db.session.commit()
         self.scrape_new_docs(site_update)
         return
 
-    # NEXT STEPS:
-        # 1. Get the report update info to display in the website  DONE
-        # 2. Incorporate getting doc names & links and displaying in the html
-            # You DON'T need to check if the doc is already in the database. You just need to check if the ACTION the doc
-            # is associated with is in the database. Which is why the queries from the method above should be very helpful.
 
     def scrape_new_docs(self, site_update):
-        # get the current site's GeoTracker Global ID
-        gt_global_id = Site.query.filter_by(id=site_update.site_id).first().gt_global_id
-        # Navigating to the cleanup site page
-        driver.get(gt_start_url + gt_global_id)
+        # Navigate to the cleanup site page
+        driver.get(gt_start_url + site_update.site.gt_global_id)
         # Navigate to the Regulatory Activiaties Tag
         driver.find_element_by_link_text("Regulatory Activities").click()
         # Wait for the page to load

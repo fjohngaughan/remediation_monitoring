@@ -1,8 +1,58 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<br>
-<br>
-<h3>Say goodbye to clicking through the same GeoTracker sites every month</h3>
-<h4>Say hello to a simple report with updates on every site you follow</h4>
+
+{% if current_user.is_authenticated %}
+    <br>
+    <br>
+    <div class="row mx-4">
+    {% for i in range(my_reports|length) %} 
+            <div class="col-sm-6" style="width: 28rem;">
+                <div class="card" style="height: 14rem;">
+                    <div class="card-body">
+                        <div class="d-grid gap-2 d-md-flex justify-content-end">
+                            <a href="{{ url_for('edit_report', report_id=my_reports[i].id) }}"><button class="btn btn-outline-secondary btn-sm" type="button">Edit</button></a>
+                        </div>
+                        <h5 class="card-title"><a href="{{ url_for('report_details', report_id=my_reports[i].id) }}" style="color:rgb(0, 81, 255); text-decoration:none;">{{ my_reports[i].report_name }}</a></h5>
+                        {% if my_reports[i].report_updates|length > 1 %}
+                        <p class="card-subtitle">Last update: {{ dt.date.strftime(my_reports[i].report_updates[-1].scraped_on, '%A, %b. %d, %Y') }}</p>
+                        {% else %}
+                        <p class="card-subtitle">No updates have been generated</p>
+                        {% endif %}
+                        {% if my_reports[i].description is none %}
+                        <p class="text-muted"><em>No description</em></p>
+                        <br>
+                        {% else %}
+                        <p class="text-muted" style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis;"><em>{{ my_reports[i].description }}</em></p>
+                        {% endif %}
+                        <form method="POST">
+                            <input type='hidden' name="report_id{{my_reports[i].id}}" id="report_id{{my_reports[i].id}}" value="{{my_reports[i].id}}">
+                            <input class="btn btn-primary" type='submit' onsubmit="" value="Scan for Updates">
+                        </form>
+                    </div>
+                </div>
+                <br>
+            </div>
+    {% endfor %}
+        <div class="col-sm-6" style="width: 28rem;">
+            <div class="card" style="height: 14rem;">
+                <div class="card-body">
+                    <form method="POST">
+                        <input type='hidden'>
+                        <a href="{{ url_for('addreport') }}"><i class="fas fa-plus fa-5x" style="color:rgba(159, 167, 189, 0.877); padding:55px 150px;"></i></a>
+                    </form>
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+{% else %}
+    <br>
+    <br>
+    <div style="padding-left:10%; padding-right:10%;">
+        <h3 >Say goodbye to clicking through the same GeoTracker sites every month.</h3>
+        <br>
+        <h4>Say hello to simple reports with updates on every site you follow.</h4>
+    </div>
+{% endif %}
 {% endblock content %}

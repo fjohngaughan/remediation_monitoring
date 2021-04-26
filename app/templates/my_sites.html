@@ -2,11 +2,35 @@
 
 {% block content %}
 <br>
-{% for s in my_sites %}
-    <h4>{{ s.site_name }} ({{ s.gt_global_id }})</h4>
-{% endfor %}
 <br>
-<h5><a href="{{ url_for('addsite') }}">Add a new site</a></h5>
-
+<h3 style="text-align:center;">My Sites</h3>
+<br>
+<div class="row mx-4">
+{% for s in my_sites %}
+    <div class="col-sm-6 mx-auto" style="width: 25rem; text-align: center;">
+        <div class="card" style="height: auto;">
+            <div class="card-body">
+                <div class="d-grid gap-2 d-md-flex justify-content-end">
+                    <a href="{{ url_for('edit_site', site_id=s.id) }}"><button class="btn btn-outline-secondary btn-sm" type="button">Edit</button></a>
+                </div>
+                <h5 style="text-align:left; padding-top:5px; padding-right:20px;">{{ s.site_name }} ({{ s.gt_global_id }})</h5>
+            </div>
+        </div>
+        <br>
+    </div>
+{% endfor %}
+    <div class="col-sm-6 mx-auto" style="width: 25rem; text-align: center;">
+        <div class="card" style="height: auto;">
+            <div class="card-body">
+                <form method="POST">
+                    <input type='hidden'>
+                    <a href="{{ url_for('addsite') }}"><i class="fas fa-plus fa-2x" style="color:rgba(159, 167, 189, 0.877); padding:27px 50px;"></i></a>
+                </form>
+            </div>
+        </div>
+        <br>
+    </div>
+    <br>
+</div>
 
 {% endblock content %}

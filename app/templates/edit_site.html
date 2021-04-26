@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+<br>
+<h3 style="text-align:center;">Edit {{ site.site_name }} ({{ site.gt_global_id }})</h3>
+<br>
+    <div style="margin:auto 15%;">
+        <p>You can only rename a site--you cannot change its GeoTracker Global ID. Changing the Global ID would cause serious confusion 
+            when reviewing report updates. If you were thinking of changing the Global ID, just delete this site and <a href="{{ url_for('addsite') }}">add a new one</a>.
+        </p>
+        <br>   
+        <div>
+            <p>(Need to look up a site's name or Global ID? Visit <a href="https://geotracker.waterboards.ca.gov/map/?CMD=runreport&myaddress=Sacramento">GeoTracker's database</a>)</p>
+        </div>
+        <br>
+    </div>
+<div class="col-sm-6 mx-auto" style="width: 20rem; text-align: center;">
+    <div class="card" style="height:auto;">
+        <div class="card-body">
+            <form action="" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <fieldset style="text-align: left;">
+                    {{ form.site_name.label }}
+                    {{ form.site_name(class="form-control") }}
+                    </fieldset>
+                    <br>
+                    {{ form.submit(class="btn btn-primary", value="Save") }}
+                </div>
+            </form>
+        </div>
+    </div>
+    <br>
+</div>
+
+<!-- Button trigger modal -->
+<div class="text-center">
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Site</button>
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Delete Site - Are you sure?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="text-align: left;">
+            <strong>If you delete this site, it will be removed from any reports with which it's associated.</strong> Are you sure you want to delete it?
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <form action="{{ url_for('site_delete', site_id=site.id) }}" method="POST">
+                <input type="submit" value="Delete" class="btn btn-danger">
+            </form>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+
+{% endblock content %}

@@ -3,12 +3,9 @@
 {% block content %}
 <br>
 <br>
-<h3 style="text-align: center;">Create a Report</h3>
+<h3 style="text-align: center;">Edit {{ report.report_name }}</h3>
 <br>
-{% if sites|length == 0 %}
-<br>
-<h4 style="margin:auto 15%;">Looks like you don't have any sites yet. You'll need to <a href="{{ url_for('addsite') }}">add some sites</a> before you can generate a report.</h4>
-{% else %}
+
 <div class="card mx-auto bg-light" style="width:auto; max-width:35rem;">
     <div class="card-body">
         {% from "_formhelpers.html" import render_field %}
@@ -23,16 +20,15 @@
                 {{ render_field(form.current_user_sites, class="list-unstyled") }}
                 </fieldset>
                 <fieldset>
-                {{ form.description.label }} 
-                {{ form.description(class="form-control") }} 
+                {{ render_field(form.description, class="form-control") }} 
                 </fieldset>
                 <br>
-                <div style="text-align: center;">{{ form.submit(class="btn btn-primary") }}</div>
+                <div style="text-align: center;">
+                    {{ form.submit(class="btn btn-primary", value='Save') }}
+                </div>
             </div>
         </form>
     </div>
-</div>
-{% endif %}
-
+  </div>
 
 {% endblock content %}

@@ -8,6 +8,9 @@
             <input type='hidden' name="report_id{{my_reports[i].id}}" id="report_id{{my_reports[i].id}}" value="{{my_reports[i].id}}">
             <input type='submit' onsubmit="" value="Scan for Updates">
         </form>
+        <form action="{{ url_for('report_delete', report_id=my_reports[i].id) }}" method="POST">
+            <input type="submit" value="Delete" class="btn btn-danger">
+        </form>
     {% for j in range(my_reports[i].sites|length) %}
         <h6>- {{ my_reports[i].sites[j].site_name }} ({{ my_reports[i].sites[j].gt_global_id }})</h6>
     {% endfor %}
