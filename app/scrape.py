@@ -22,7 +22,7 @@ options.headless = True
 options.add_argument("--window-size=1920,1200")
 
 gt_start_url = 'https://geotracker.waterboards.ca.gov/profile_report?global_id='
-driver = webdriver.Chrome(options=options, executable_path='/Users/fjgaughan94/Desktop/data-science/coding-temple/final-project/ideas-&-testing/selenium-test/chrome_driver/chromedriver')
+driver = webdriver.Chrome(options=options, executable_path='/Users/fjgaughan94/Desktop/data-science/coding-temple/final-project/ideas-&-testing/selenium-test/chrome_driver/chromedriver.exe')
 database_uri = 'postgres://cglpswlj:PljB6Lqcs31c_WxbjZ8w77WNxJVty0zU@queenie.db.elephantsql.com:5432/cglpswlj'
 engine = create_engine(database_uri)
 
