@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GOOGLE_CHROME_BIN = os.getenv('GOOGLE_CHROME_BIN')
-CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH)
+CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH')
 
 today = date.today()
 
