@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from env import GOOGLE_CHROME_BIN, CHROMEDRIVER_PATH
 import pandas as pd 
 import numpy as np
 from datetime import date
