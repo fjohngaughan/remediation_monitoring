@@ -17,12 +17,19 @@ from sqlalchemy import create_engine
 today = date.today()
 
 
+
+
+
 options = Options()
 options.headless = True
 options.add_argument("--window-size=1920,1200")
+options.binary_location = GOOGLE_CHROME_BIN
+options.add_argument('--disable-gpu')
+options.add_argument('--no-sandbox')
 
 gt_start_url = 'https://geotracker.waterboards.ca.gov/profile_report?global_id='
-driver = webdriver.Chrome(options=options, executable_path='/Users/fjgaughan94/Desktop/data-science/coding-temple/final-project/ideas-&-testing/selenium-test/chrome_driver/chromedriver')
+driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
+# driver = webdriver.Chrome(options=options, executable_path='/Users/fjgaughan94/Desktop/data-science/coding-temple/final-project/ideas-&-testing/selenium-test/chrome_driver/chromedriver')
 database_uri = 'postgres://cglpswlj:PljB6Lqcs31c_WxbjZ8w77WNxJVty0zU@queenie.db.elephantsql.com:5432/cglpswlj'
 engine = create_engine(database_uri)
 
