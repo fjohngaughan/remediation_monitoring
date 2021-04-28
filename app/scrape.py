@@ -16,7 +16,7 @@ from sqlalchemy import create_engine
 # from dotenv import load_dotenv
 # import os
 
-load_dotenv()
+# load_dotenv()
 
 # GOOGLE_CHROME_BIN = os.getenv('GOOGLE_CHROME_BIN')
 # CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH')
