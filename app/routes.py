@@ -62,7 +62,7 @@ def editaccount(current_user_id):
         current_user.email = form.email.data 
         db.session.commit()
         flash("You have successfully signed up!", "success")
-        return redirect(url_for('accountdetails'))
+        return redirect(url_for('accountdetails', current_user_id=current_user.id))
     return render_template('edit_account.html', title=title, form=form, current_user=current_user)
 
 @app.route('/updatepassword/<int:current_user_id>', methods=['GET', 'POST'])
