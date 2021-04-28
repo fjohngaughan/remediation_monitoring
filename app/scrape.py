@@ -24,11 +24,11 @@ from sqlalchemy import create_engine
 today = date.today()
 
 chrome_options = webdriver.ChromeOptions()
-options.headless = True
-options.add_argument("--window-size=1920,1200")
-options.binary_location = GOOGLE_CHROME_BIN
-options.add_argument('--disable-gpu')
-options.add_argument('--no-sandbox')
+chrome_options.headless = True
+chrome_options.add_argument("--window-size=1920,1200")
+chrome_options.add_argument('--disable-gpu')
+chrome_options.add_argument("disable-dev-shm-usage")
+chrome_options.add_argument('--no-sandbox')
 
 
 gt_start_url = 'https://geotracker.waterboards.ca.gov/profile_report?global_id='
