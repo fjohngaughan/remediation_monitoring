@@ -169,10 +169,12 @@ def mysites():
 @app.route('/addreport', methods=['GET', 'POST'])
 @login_required
 def addreport(): 
+    form = AddReportForm()
+    report = Report()
     context = {
         'title': "GecMonitor | Add a Report",
-        'report': Report(),
-        'form': AddReportForm(),
+        'report': report,
+        'form': form,
         'sites': current_user.sites
     }   
     if request.method == 'POST' and form.validate():
