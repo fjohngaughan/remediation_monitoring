@@ -7,33 +7,35 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd 
 import numpy as np
 from datetime import date
 from time import sleep
 from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import os
+# from dotenv import load_dotenv
+# import os
 
 load_dotenv()
 
-GOOGLE_CHROME_BIN = os.getenv('GOOGLE_CHROME_BIN')
-CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH')
+# GOOGLE_CHROME_BIN = os.getenv('GOOGLE_CHROME_BIN')
+# CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH')
 
 today = date.today()
 
-options = Options()
+chrome_options = webdriver.ChromeOptions()
 options.headless = True
 options.add_argument("--window-size=1920,1200")
 options.binary_location = GOOGLE_CHROME_BIN
 options.add_argument('--disable-gpu')
 options.add_argument('--no-sandbox')
 
+
 gt_start_url = 'https://geotracker.waterboards.ca.gov/profile_report?global_id='
-driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
+driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=chrome_options)
+
 # driver = webdriver.Chrome(options=options, executable_path='/Users/fjgaughan94/Desktop/data-science/coding-temple/final-project/ideas-&-testing/selenium-test/chrome_driver/chromedriver')
-database_uri = 'postgres://cglpswlj:PljB6Lqcs31c_WxbjZ8w77WNxJVty0zU@queenie.db.elephantsql.com:5432/cglpswlj'
-engine = create_engine(database_uri)
+engine = create_engine(os.getenv('DATABASE_URL'))
 
 class InitialSiteScan():
 
