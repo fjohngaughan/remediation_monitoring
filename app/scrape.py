@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd 
 import numpy as np
 from datetime import date
@@ -18,13 +18,14 @@ import os
 
 load_dotenv()
 
-# GOOGLE_CHROME_BIN = os.getenv('GOOGLE_CHROME_BIN')
-# CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH')
+GOOGLE_CHROME_BIN = os.getenv('GOOGLE_CHROME_BIN')
+CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH')
 
 today = date.today()
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.headless = True
+chrome_options.binary_location = GOOGLE_CHROME_BIN
 chrome_options.add_argument("--window-size=1920,1200")
 chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument("disable-dev-shm-usage")
@@ -32,7 +33,7 @@ chrome_options.add_argument('--no-sandbox')
 
 
 gt_start_url = 'https://geotracker.waterboards.ca.gov/profile_report?global_id='
-driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=chrome_options)
+driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
 
 # driver = webdriver.Chrome(options=options, executable_path='/Users/fjgaughan94/Desktop/data-science/coding-temple/final-project/ideas-&-testing/selenium-test/chrome_driver/chromedriver')
 engine = create_engine(os.getenv('DATABASE_URL'))
