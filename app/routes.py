@@ -28,6 +28,11 @@ def index():
     else:
         return render_template('index.html')
 
+@app.route('/about')
+def about():
+    title = "GecMonitor | About"
+    return render_template('about.html', title=title)
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     title = "GecMonitor | Sign Up"
