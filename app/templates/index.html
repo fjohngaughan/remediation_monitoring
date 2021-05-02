@@ -7,7 +7,7 @@
     <br>
     <div class="row mx-4">
     {% for i in range(my_reports|length) %} 
-            <div class="col-sm-6" style="width: 28rem;">
+            <div class="col-sm-6 mx-auto" style="width: 28rem;">
                 <div class="card" style="height: 14rem;">
                     <div class="card-body">
                         <div class="d-grid gap-2 d-md-flex justify-content-end">
@@ -34,12 +34,12 @@
                 <br>
             </div>
     {% endfor %}
-        <div class="col-sm-6 mx-auto" style="width: 25rem; text-align: center;">
-            <div class="card" style="height: auto;">
+        <div class="col-sm-6 mx-auto" style="width: 28rem; text-align: center;">
+            <div class="card" style="height: 14rem;">
                 <div class="card-body">
                     <form method="POST">
                         <input type='hidden'>
-                        <a href="{{ url_for('addreport') }}"><i class="fas fa-plus fa-5x" style="color:rgba(159, 167, 189, 0.877); padding:55px 150px;"></i></a>
+                        <a href="{{ url_for('addreport') }}"><i class="fas fa-plus fa-5x" style="color:rgba(159, 167, 189, 0.877); padding:55px 56px;"></i></a>
                     </form>
                 </div>
             </div>
