@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 
-{% block content %}
-
 {% if current_user.is_authenticated %}
+
+{% block title %}
+Home | GecMonitor.com
+{% endblock title %}
+
+{% block content %}
     <br>
     <br>
     <div class="row mx-4">
@@ -46,13 +50,20 @@
             <br>
         </div>
     </div>
+{% endblock content %}
+
 {% else %}
-    <br>
-    <br>
-    <div style="padding-left:10%; padding-right:10%;">
+
+{% block title %}
+My Reports | GecMonitor.com
+{% endblock title %}
+
+{% block content %}
+
+    <div style="padding-top:15%; padding-left:10%; padding-right:10%;">
         <h3 >Say goodbye to clicking through the same GeoTracker sites every month.</h3>
         <br>
         <h4>Say hello to simple reports with updates on every site you follow.</h4>
     </div>
-{% endif %}
 {% endblock content %}
+{% endif %}

@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block title %}
+{{ report.report_name }} - {{ dt.date.strftime(report_update.scraped_on) Update }} | GecMonitor.com
+{% endblock title %}
+
 {% block content %}
 <br>
 <br>
