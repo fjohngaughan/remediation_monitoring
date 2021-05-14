@@ -9,7 +9,6 @@ app.config.from_object(Config)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-heroku = Heroku(app)
 
 login = LoginManager(app)
 login.login_view = 'login'
