@@ -17,7 +17,7 @@
                         </div>
                         <h5 class="card-title"><a href="{{ url_for('report_details', report_id=my_reports[i].id) }}" style="color:rgb(0, 81, 255); text-decoration:none;">{{ my_reports[i].report_name }}</a></h5>
                         {% if my_reports[i].report_updates|length > 1 %}
-                        <p class="card-subtitle">Last update: {{ dt.date.strftime(my_reports[i].report_updates[-1].scraped_on, '%A, %b. %d, %Y') }}</p>
+                        <p class="card-subtitle">Last update: {{ dt.date.strftime(my_reports[i].report_updates[-1].scraped_on, '%A, %b %d, %Y') }}</p>
                         {% else %}
                         <p class="card-subtitle">No updates have been generated</p>
                         {% endif %}

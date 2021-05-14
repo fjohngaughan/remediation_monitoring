@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
 {% block title %}
-{{ report.report_name }} - {{ dt.date.strftime(report_update.scraped_on) }} Update
+{{ report.report_name }} - {{ dt.date.strftime(report_update.scraped_on, '%A, %b %d, %Y') }} Update
 {% endblock title %}
 
 {% block content %}
 <br>
 <br>
 <h3 style="text-align:center;">{{ report.report_name }}</h3>
-<h4 style="text-align:center;">{{ dt.date.strftime(report_update.scraped_on, '%A, %b. %d, %Y') }} Report</h4>
+<h4 style="text-align:center;">{{ dt.date.strftime(report_update.scraped_on, '%A, %b %d, %Y') }} Report</h4>
 <br>
 {% for site in site_updates %}
     <div class="col-sm-6 mx-auto" style="width: 60rem;">
