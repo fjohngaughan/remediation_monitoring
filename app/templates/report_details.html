@@ -11,7 +11,7 @@
 <div class="col-sm-6 mx-auto" style="width: 20rem; text-align: center;">
     <div class="card" style="height: 4rem;">
         <div class="card-body">
-            <h4><a href="{{ url_for('report_update', report_id=report.id, report_update_id=report_updates[i].id) }}" style="text-decoration:none;">{{ dt.date.strftime(report_updates[-1].scraped_on, '%A, %b %-d, %Y') }}</a></h4>
+            <h4><a href="{{ url_for('report_update', report_id=report.id, report_update_id=report_updates[i].id) }}" style="text-decoration:none;">{{ dt.date.strftime(report_updates[i].scraped_on, '%A, %b %-d, %Y') }}</a></h4>
         </div>
     </div>
     <br>
