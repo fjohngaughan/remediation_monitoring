@@ -7,15 +7,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-import pandas as pd 
-import numpy as np
 from datetime import date
 from time import sleep
 from sqlalchemy import create_engine
 
-
 today = date.today()
-
 
 options = Options()
 options.headless = True
@@ -26,7 +22,7 @@ driver = webdriver.Chrome(options=options, executable_path='/Users/fjgaughan94/D
 database_uri = 'postgres://cglpswlj:PljB6Lqcs31c_WxbjZ8w77WNxJVty0zU@queenie.db.elephantsql.com:5432/cglpswlj'
 engine = create_engine(database_uri)
 
-class InitialSiteScan():
+class initial_site_scan():
 
     def __init__(self, sites_list, report_id):
         self.sites_list = sites_list
@@ -63,12 +59,11 @@ class InitialSiteScan():
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
             except TimeoutException:
                 print("Required element still could not be found!")
-            # loop through Regulatory Activity rows until it hits a row in the "New Actions" table
-            action_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[3]/td[4]").text
-            description = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[3]/td[6]").text
-            action_type = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[3]/td[2]").text
-            action = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[3]/td[3]").text
-            received_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[3]/td[5]").text
+            action_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[4]").text
+            description = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[6]").text
+            action_type = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[2]").text
+            action = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[3]/td[2]").text
+            received_date = driver.find_element_by_xpath(f"//table[@id='mytab']/tbody/tr/td/table/tbody/tr[2]/td[5]").text
             new_action_row = NewAction(site_update_id=site_update.id, action_type=action_type, action=action, 
                                         action_date=action_date, received_date=received_date, description=description)
             db.session.add(new_action_row)
@@ -76,16 +71,13 @@ class InitialSiteScan():
             return
         except:
             return
-            # driver.find_element_by_xpath("//a[@class='tab-disabled']/span"):
-            # if driver.find_element_by_xpath("//a[@class='tab-disabled']/span").text == 'Regulatory Activities':  
-            #     return 
 
-class ReportUpdateScan():
+class report_update_scan():
 
     def __init__(self, report_id):
         report = Report.query.get_or_404(report_id)
         last_report_update = report.report_updates[-1]
-        # Get the last site update for each site - query all sites_updates matching the site_id, and grab the bottom one
+        # Get the last site update for each site that's saved in our database
         last_site_updates = [site.site_updates[-1] for site in report.sites]
         # Create a list of lists with the site id, GeoTracker global id, and site update id for each site, drawn from last_site_updates
         sites_list = [[site_update.site_id, site_update.site.gt_global_id, site_update.id] for site_update in last_site_updates]
@@ -145,7 +137,6 @@ class ReportUpdateScan():
             # I'm checking if the top action is in the last Site Update
             # The last site update will have the appropriate date to check against.
             # I need to make a list of the action dates from the last Site Update and see if action_date is in there
-            # all_site_actions = NewAction.query.filter(NewAction.site_update_id.in_(site_update_ids)).all()
             if action_date == last_site_action.action_date and description == last_site_action.description:
                 break
             else:
