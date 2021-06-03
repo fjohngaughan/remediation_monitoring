@@ -118,7 +118,6 @@ def addsite():
     if request.method == 'POST' and form.validate():
         site_name = form.site_name.data
         gt_global_id = form.gt_global_id.data
-        # This adds the new site to the Site table via User.sites, meaning the "user_id" value in the Site table will be the current user's
         new_site = Site(site_name=site_name, gt_global_id=gt_global_id)
         current_user.sites.append(new_site)
         db.session.add(new_site)
@@ -132,7 +131,6 @@ def addsite():
 def edit_site(site_id):
     site = Site.query.get_or_404(site_id)
     title = f"GecMonitor | Edit {site.site_name}"
-    # create list of site ids currently associated with the site
     form = EditSiteForm(site_name=site.site_name)
     context = {
         'site': site,
@@ -195,7 +193,6 @@ def addreport():
 def edit_report(report_id):
     report = Report.query.get_or_404(report_id)
     title = f"GecMonitor | Edit {report.report_name}"
-    # create list of site ids currently associated with the report
     current_sites = [site.id for site in report.sites]
     form = AddReportForm(report_name=report.report_name, current_user_sites=report.sites, description=report.description)
     if request.method == 'POST' and form.validate():
