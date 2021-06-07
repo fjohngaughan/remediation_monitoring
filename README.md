@@ -1,6 +1,9 @@
 # GecMonitor
 
 Visit the website at https://www.gecmonitor.com
+<br>
+<br>
+Written in Python, HTML, and CSS, with Flask, Selenium Web Driver, and Bootstrap.
 
 ## The Problem
 California's state government has a database called <a href="https://geotracker.waterboards.ca.gov">GeoTracker</a> to track water pollution cleanup projects. It's a good 
