@@ -18,6 +18,7 @@ report of any changes.
 That's where GecMonitor comes in. We allow users to group the cleanup projects they track into reports. When they request an update on a report, GecMonitor scans for new information 
 and gives them a clean, simple update with any new activities and documents, organized by site.
 <br>
+<br>
 To put it simply, it checks all your sites for you and gives you any new information and documents on a single page.
 <br>
 <br>
