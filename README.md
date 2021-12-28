@@ -28,8 +28,16 @@ To put it simply, it checks all your sites for you and gives you any new informa
 ## Where We Are & What's Ahead
 For now, GecMonitor tracks a site's status and new actions in the “Regulatory Activities” tab on GeoTracker.
 <br>
-In the future, we hope to expand the type of information our reports can monitor on GeoTracker (Cleanup Action Reports, Environmental Data, Site Maps / Documents, Community Involvement, etc.). 
-The broader vision is to make our reports the hub for personalized updates on cleanup sites, drawing information from EnviroStor, city meeting agendas and minutes, and maybe online news. 
+In the near future, we plan to: 
+<ul> 
+  <li>expand the type of information our reports can monitor on GeoTracker (Cleanup Action Reports, Environmental Data, Site Maps / Documents, Community Involvement, etc.) </li>
+  <li>incorporate EnviroStor data</li> 
+  <li>make it a lot faster to get report updates by, 1) leveraging fairly comprehensive datasets updated daily by GeoTracker and EnviroStor, and 2) using distributed web scraping for other needed data</li>
+  <li>redesign the front end with React</li>
+  <li>add unit tests and error handling</li>
+  <li>switch from Flask to Django</li>
+</ul>
+The broader vision is to make our reports the hub for personalized updates on cleanup sites, drawing information from GeoTracker, EnviroStor, and city meeting agendas and minutes (and maybe online news). 
 That’s actually where were got the “Gec” in “GecMonitor”:
 <br>
 <br>
