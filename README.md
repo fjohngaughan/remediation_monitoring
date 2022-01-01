@@ -33,7 +33,7 @@ In the near future, we plan to:
   <li>expand the type of information our reports can monitor on GeoTracker (Cleanup Action Reports, Environmental Data, Site Maps / Documents, Community Involvement, etc.) </li>
   <li>incorporate EnviroStor data</li> 
   <li>make it a lot faster to get report updates by, 1) leveraging fairly comprehensive datasets updated daily by GeoTracker and EnviroStor, and 2) using distributed web scraping for other needed data</li>
-  <li>redesign the front end with React</li>
+  <li>rebuild the front end with React</li>
   <li>add unit tests and error handling</li>
   <li>switch from Flask to Django</li>
 </ul>
